@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>OG ONLINE — Admin Panel</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[var(--bg)] text-[var(--text)] min-h-screen">
+
+  <!-- TOP NAV -->
+  <header class="sticky top-0 z-50 nav-glass px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <a href="index.html" class="icon-btn text-base">🏠</a>
+      <span class="logo-text">OG<span class="accent">⚡</span>ADMIN</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="themeToggle" class="icon-btn">🌙</button>
+      <button onclick="refreshOrders()" class="cart-pill" id="refreshBtn">🔄</button>
+    </div>
+  </header>
+
+  <!-- STATS BAR -->
+  <div class="px-3 mt-4 grid grid-cols-4 gap-2 mb-4">
+    <div class="stat-card text-center">
+      <p class="text-xl font-bold" id="statTotal">0</p>
+      <p class="text-xs opacity-50 mt-0.5">Total</p>
+    </div>
+    <div class="stat-card text-center">
+      <p class="text-xl font-bold" style="color:var(--warning)" id="statPending">0</p>
+      <p class="text-xs opacity-50 mt-0.5">Pending</p>
+    </div>
+    <div class="stat-card text-center">
+      <p class="text-xl font-bold" style="color:var(--success)" id="statAccepted">0</p>
+      <p class="text-xs opacity-50 mt-0.5">Accepted</p>
+    </div>
+    <div class="stat-card text-center">
+      <p class="text-xl font-bold" style="color:var(--danger)" id="statRejected">0</p>
+      <p class="text-xs opacity-50 mt-0.5">Rejected</p>
+    </div>
+  </div>
+
+  <!-- ADMIN TAB BAR -->
+  <div class="px-3 mb-4 flex gap-2">
+    <button class="admin-tab-btn cat-pill" data-tab="orders"   onclick="switchAdminTab('orders')">📋 Orders</button>
+    <button class="admin-tab-btn cat-pill" data-tab="products" onclick="switchAdminTab('products')">🛍️ Products</button>
+    <button class="admin-tab-btn cat-pill" data-tab="settings" onclick="switchAdminTab('settings')">⚙️ Settings</button>
+  </div>
+
+  <!-- ============================
+       SECTION: ORDERS
+  ============================= -->
+  <section id="section-orders" class="px-3 pb-24">
+    <!-- Order filter pills -->
+    <div class="flex gap-2 overflow-x-auto scrollbar-hide mb-4" id="orderFilterBar">
+      <button class="cat-pill active" onclick="filterOrders('all', this)">All</button>
+      <button class="cat-pill" onclick="filterOrders('Pending', this)">🕐 Pending</button>
+      <button class="cat-pill" onclick="filterOrders('Accepted', this)">✅ Accepted</button>
+      <button class="cat-pill" onclick="filterOrders('Rejected', this)">❌ Rejected</button>
+      <button class="cat-pill" onclick="filterOrders('Delivered', this)">📦 Delivered</button>
+    </div>
+
+    <div id="ordersList" class="space-y-4"></div>
+    <div id="emptyState" class="hidden text-center py-20 opacity-40">
+      <p class="text-5xl mb-3">📭</p>
+      <p class="font-semibold">No orders here yet</p>
+      <p class="text-sm mt-1">Orders will appear when customers checkout</p>
+    </div>
+  </section>
+
+  <!-- ============================
+       SECTION: PRODUCTS
+  ============================= -->
+  <section id="section-products" class="px-3 pb-28" style="display:none">
+    <button onclick="openAddProduct()" class="w-full btn-primary py-4 rounded-2xl font-bold text-base mb-4">
+      ➕ Add New Product
+    </button>
+    <div id="adminProductList" class="space-y-3"></div>
+  </section>
+
+  <!-- ============================
+       SECTION: SETTINGS
+  ============================= -->
+  <section id="section-settings" class="px-3 pb-28" style="display:none">
+
+    <div class="order-card mb-4">
+      <p class="font-bold mb-3" style="font-family:'Syne',sans-serif">💳 Payment Settings</p>
+
+      <label class="field-label">UPI ID</label>
+      <input id="cfg-upiId" type="text" class="field-input mb-3" placeholder="yourname@okaxis" />
+
+      <label class="field-label">UPI Display Name</label>
+      <input id="cfg-upiName" type="text" class="field-input mb-3" placeholder="Your Name" />
+
+      <label class="field-label">Delivery Fee (₹)</label>
+      <input id="cfg-deliveryFee" type="number" class="field-input" placeholder="19" min="0" />
+    </div>
+
+    <div class="order-card mb-4">
+      <p class="font-bold mb-3" style="font-family:'Syne',sans-serif">🏪 Store Settings</p>
+      <label class="field-label">Store Name</label>
+      <input id="cfg-storeName" type="text" class="field-input" placeholder="OG ONLINE" />
+    </div>
+
+    <button onclick="saveSettings()" class="w-full btn-primary py-4 rounded-2xl font-bold text-base mb-3">
+      💾 Save Settings
+    </button>
+
+    <div class="order-card mb-4">
+      <p class="font-bold mb-3" style="font-family:'Syne',sans-serif">📊 Data Management</p>
+      <button onclick="exportOrders()" class="w-full btn-ghost py-3 rounded-xl text-sm font-semibold mb-2">
+        📥 Export Orders as CSV
+      </button>
+      <button onclick="resetProducts()" class="w-full btn-ghost py-3 rounded-xl text-sm font-semibold mb-2" style="color:var(--warning)">
+        🔄 Reset Products to Defaults
+      </button>
+      <button onclick="clearAllOrders()" class="w-full btn-ghost py-3 rounded-xl text-sm font-semibold" style="color:var(--danger)">
+        🗑️ Delete All Orders
+      </button>
+    </div>
+
+    <div class="order-card">
+      <p class="font-bold mb-2" style="font-family:'Syne',sans-serif">ℹ️ About</p>
+      <p class="text-xs opacity-50">OG ONLINE Admin Panel v2.0</p>
+      <p class="text-xs opacity-50 mt-1">Data stored in browser localStorage. All changes apply immediately to the storefront.</p>
+      <p class="text-xs opacity-50 mt-1">Auto-refreshes orders every 15 seconds.</p>
+    </div>
+  </section>
+
+  <!-- ============================
+       ADD PRODUCT MODAL
+  ============================= -->
+  <div id="addProductModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold" style="font-family:'Syne',sans-serif">➕ Add Product</h2>
+        <button onclick="closeAddProduct()" class="text-2xl leading-none opacity-50">×</button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-3">
+        <div>
+          <label class="field-label">Emoji</label>
+          <input id="ap-emoji" type="text" class="field-input" placeholder="📦" maxlength="4" />
+        </div>
+        <div>
+          <label class="field-label">Price (₹)</label>
+          <input id="ap-price" type="number" class="field-input" placeholder="49" min="0" />
+        </div>
+      </div>
+
+      <label class="field-label">Product Name</label>
+      <input id="ap-name" type="text" class="field-input mb-3" placeholder="e.g. Cadbury Dairy Milk" />
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <label class="field-label">Weight / Size</label>
+          <input id="ap-weight" type="text" class="field-input" placeholder="100g" />
+        </div>
+        <div>
+          <label class="field-label">Category</label>
+          <select id="ap-cat" class="field-input">
+            <option value="snacks">snacks</option>
+            <option value="drinks">drinks</option>
+            <option value="dairy">dairy</option>
+            <option value="fruits">fruits</option>
+            <option value="instant">instant</option>
+          </select>
+        </div>
+      </div>
+
+      <button onclick="submitAddProduct()" class="w-full btn-primary py-4 rounded-2xl font-bold text-base mb-2">
+        ✅ Add to Store
+      </button>
+      <button onclick="closeAddProduct()" class="w-full btn-ghost py-3 rounded-2xl text-sm">
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
