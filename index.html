@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>OG ONLINE ⚡ Fast Delivery</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[var(--bg)] text-[var(--text)] min-h-screen">
+
+  <!-- TOP NAV -->
+  <header class="sticky top-0 z-50 nav-glass px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <span class="logo-text">OG<span class="accent">⚡</span>ONLINE</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="orders.html" class="icon-btn text-sm" title="My Orders">📦</a>
+      <button id="themeToggle" class="icon-btn" title="Toggle theme">🌙</button>
+      <button class="cart-pill" onclick="toggleCart()">
+        🛒 <span id="cartCount">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- HERO BANNER -->
+  <section class="hero-banner mx-3 mt-3 mb-5 rounded-2xl p-5">
+    <p class="text-xs font-semibold tracking-widest uppercase mb-1 opacity-70">Delivery in 10 mins</p>
+    <h1 class="hero-heading">Groceries.<br/>Snacks. <span class="accent">Anything.</span></h1>
+    <p class="text-sm mt-2 opacity-60">Straight to your door. No cap.</p>
+  </section>
+
+  <!-- CATEGORY PILLS -->
+  <div class="px-3 mb-4 flex gap-2 overflow-x-auto scrollbar-hide">
+    <button class="cat-pill active" onclick="filterCat('all', this)">All</button>
+    <button class="cat-pill" onclick="filterCat('snacks', this)">🍿 Snacks</button>
+    <button class="cat-pill" onclick="filterCat('drinks', this)">🥤 Drinks</button>
+    <button class="cat-pill" onclick="filterCat('dairy', this)">🥛 Dairy</button>
+    <button class="cat-pill" onclick="filterCat('fruits', this)">🍎 Fruits</button>
+    <button class="cat-pill" onclick="filterCat('instant', this)">🍜 Instant</button>
+  </div>
+
+  <!-- PRODUCT GRID -->
+  <main class="px-3 pb-32">
+    <div id="productGrid" class="grid grid-cols-2 gap-3"></div>
+  </main>
+
+  <!-- CART OVERLAY -->
+  <div id="cartOverlay" class="cart-overlay hidden" onclick="toggleCart()"></div>
+
+  <!-- CART DRAWER -->
+  <div id="cartDrawer" class="cart-drawer" style="transform:translateY(100%)">
+    <div class="drawer-handle"></div>
+    <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-[var(--border)]">
+      <h2 class="text-lg font-bold" style="font-family:'Syne',sans-serif">Your Cart 🛒</h2>
+      <button onclick="toggleCart()" class="text-2xl leading-none opacity-60 px-1">×</button>
+    </div>
+    <div id="cartItems" class="px-4 py-3 overflow-y-auto" style="max-height:42vh"></div>
+    <div class="px-4 pt-3 border-t border-[var(--border)]">
+      <div class="flex justify-between text-sm mb-1 opacity-60">
+        <span>Subtotal</span><span id="subtotalAmt">₹0</span>
+      </div>
+      <div class="flex justify-between text-sm mb-3 opacity-60">
+        <span>Delivery Fee</span><span id="deliveryFeeAmt">₹19</span>
+      </div>
+      <div class="flex justify-between font-bold text-base mb-4">
+        <span>Total</span><span id="totalAmt">₹0</span>
+      </div>
+      <button onclick="openCheckout()" class="w-full btn-primary py-4 text-base font-bold rounded-2xl">
+        Proceed to Checkout →
+      </button>
+    </div>
+  </div>
+
+  <!-- CHECKOUT MODAL -->
+  <div id="checkoutModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-xl font-bold" style="font-family:'Syne',sans-serif">Checkout 💳</h2>
+          <p class="text-xs opacity-50">Fill details &amp; pay via UPI</p>
+        </div>
+        <button onclick="closeCheckout()" class="text-2xl leading-none opacity-50 px-1">×</button>
+      </div>
+
+      <label class="field-label">Full Name</label>
+      <input id="userName" type="text" placeholder="e.g. Sugato Das" class="field-input mb-3" autocomplete="name" />
+
+      <label class="field-label">Phone Number</label>
+      <input id="userPhone" type="tel" placeholder="10-digit mobile number" class="field-input mb-3"
+             autocomplete="tel" inputmode="numeric" maxlength="10" />
+
+      <label class="field-label">Delivery Address</label>
+      <textarea id="userAddress" rows="2" placeholder="Flat no, Building, Street, City..."
+                class="field-input resize-none mb-4" autocomplete="street-address"></textarea>
+
+      <div class="p-3 rounded-xl mb-4" style="background:var(--card2);border:1px solid var(--border)">
+        <p class="text-xs font-semibold opacity-60 mb-2 uppercase tracking-wider">Pay via UPI</p>
+        <div class="flex items-center gap-2">
+          <div class="upi-logo">UPI</div>
+          <div>
+            <p class="text-sm font-bold" id="checkoutUpiId">sugato@okaxis</p>
+            <p class="text-xs opacity-50">Tap button below to open your UPI app</p>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="initiateUPIPayment()" class="w-full btn-upi py-4 rounded-2xl font-bold text-base mb-2">
+        ⚡ Pay ₹<span id="payAmount">0</span> via UPI
+      </button>
+      <button onclick="closeCheckout()" class="w-full btn-ghost py-3 rounded-2xl text-sm">
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <!-- ORDER CONFIRMED MODAL -->
+  <div id="orderModal" class="modal-overlay hidden">
+    <div class="modal-card text-center">
+      <div class="text-5xl mb-3">✅</div>
+      <h2 class="text-xl font-bold mb-1" style="font-family:'Syne',sans-serif">Order Placed!</h2>
+      <p class="text-sm opacity-60 mb-4">
+        Your order is <span class="status-pending">Pending</span> review.<br/>
+        We'll confirm it shortly.
+      </p>
+      <div class="p-3 rounded-xl mb-4 text-left" style="background:var(--card2)">
+        <p class="text-xs opacity-50 mb-1">Order ID</p>
+        <p id="displayOrderId" class="font-mono text-sm font-bold" style="color:var(--accent)"></p>
+      </div>
+      <a href="orders.html" class="block w-full btn-ghost py-3 rounded-2xl text-sm mb-2">
+        📦 Track My Order
+      </a>
+      <button onclick="closeOrderModal()" class="w-full btn-primary py-3 rounded-2xl text-sm font-bold">
+        Continue Shopping
+      </button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
