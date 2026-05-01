@@ -11,28 +11,44 @@
 </head>
 <body class="bg-[var(--bg)] text-[var(--text)] min-h-screen">
 
+  <!-- TOP NAV -->
   <header class="sticky top-0 z-50 nav-glass px-4 py-3 flex items-center justify-between">
     <div class="flex items-center gap-3">
       <a href="index.html" class="icon-btn text-xl">←</a>
-      <span class="logo-text text-base">My Orders</span>
+      <span class="logo-text" style="font-size:1rem">My Orders</span>
     </div>
-    <button id="themeToggle" class="icon-btn" title="Toggle theme">🌙</button>
+    <div class="flex items-center gap-2">
+      <button id="themeToggle" class="icon-btn">🌙</button>
+      <button onclick="renderMyOrders()" class="icon-btn text-sm">🔄</button>
+    </div>
   </header>
 
-  <main class="px-3 pt-4 pb-20">
+  <!-- UPI NOTICE -->
+  <div class="mx-3 mt-3 mb-1 flex items-center gap-2 px-3 py-2 rounded-xl"
+       style="background:rgba(0,214,143,0.07);border:1px solid rgba(0,214,143,0.15)">
+    <span class="text-base">🔒</span>
+    <p class="text-xs opacity-60">All orders are paid via UPI and auto-confirmed.</p>
+  </div>
+
+  <!-- ORDERS LIST -->
+  <main class="px-3 pt-3 pb-24">
     <div id="myOrdersList" class="space-y-4"></div>
-    <div id="emptyOrders" class="hidden text-center py-24 opacity-40">
-      <p class="text-5xl mb-3">🛍️</p>
-      <p class="font-semibold mb-1">No orders yet</p>
-      <a href="index.html" class="text-sm underline opacity-60">Start shopping</a>
+
+    <!-- Empty state -->
+    <div id="emptyOrders" class="hidden text-center py-24">
+      <p class="text-6xl mb-4">🛍️</p>
+      <p class="font-bold mb-1 opacity-60">No orders yet</p>
+      <p class="text-sm opacity-40 mb-6">Your orders will appear here after checkout</p>
+      <a href="index.html"
+         class="inline-block btn-primary px-8 py-3 rounded-2xl text-sm font-bold">
+        Start Shopping ⚡
+      </a>
     </div>
   </main>
 
+  <!-- TOAST -->
+  <div id="toast" class="toast hidden"></div>
+
   <script src="app.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      renderMyOrders();
-    });
-  </script>
 </body>
 </html>
